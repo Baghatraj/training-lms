@@ -2,9 +2,11 @@ from app.auth.dependencies import UserRole, require_roles
 from app.database import get_db
 from app.models.course_assignment import CourseAssignment
 from app.models.module import Module
+from app.models.module_progress import ModuleProgress
 from app.models.question import Question
 from app.models.quiz import Quiz
 from app.models.user import User
+from app.schemas.module_progress import ModuleProgressResponse
 from app.schemas.quiz import LearnerQuizResponse, QuizCreate, QuizResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -125,3 +127,51 @@ def get_learner_quiz(
         )
 
     return quiz
+
+@router.get(
+    "/{module_id}/progress",
+    response_model=ModuleProgressResponse,
+)
+def get_module_progress(
+    module_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.USER)),
+):
+    module = db.get(Module, module_id)
+
+    if module is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Module not found.",
+        )
+
+    assignment = db.scalar(
+        select(CourseAssignment).where(
+            CourseAssignment.user_id == current_user.id,
+            CourseAssignment.course_id == module.course_id,
+        )
+    )
+
+    if assignment is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not assigned to this course.",
+        )
+
+    progress = db.scalar(
+        select(ModuleProgress).where(
+            ModuleProgress.user_id == current_user.id,
+            ModuleProgress.module_id == module_id,
+        )
+    )
+
+    if progress is None:
+        return ModuleProgressResponse(
+            id=0,
+            user_id=current_user.id,
+            module_id=module_id,
+            completed=False,
+            completed_at=None,
+        )
+
+    return progress

@@ -69,3 +69,9 @@ class Module(Base):
     quiz = relationship(
         "Quiz", back_populates="module", uselist=False, cascade="all, delete-orphan"
     )
+
+    progress = relationship(
+        "ModuleProgress",
+        back_populates="module",
+        cascade="all, delete-orphan",
+    )

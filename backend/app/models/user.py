@@ -44,3 +44,9 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    module_progress = relationship(
+        "ModuleProgress",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

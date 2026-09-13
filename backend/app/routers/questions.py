@@ -1,7 +1,10 @@
+from datetime import datetime, timezone
+
 from app.auth.dependencies import UserRole, require_roles
 from app.database import get_db
 from app.models.answer import Answer
 from app.models.course_assignment import CourseAssignment
+from app.models.module_progress import ModuleProgress
 from app.models.question import Question
 from app.models.quiz import Quiz
 from app.models.quiz_attempt import QuizAttempt
@@ -269,6 +272,26 @@ def submit_quiz(
     )
 
     passed = score >= quiz.passing_score
+
+    if passed:
+        progress = db.scalar(
+            select(ModuleProgress).where(
+                ModuleProgress.user_id == current_user.id,
+                ModuleProgress.module_id == quiz.module_id,
+            )
+        )
+
+    if progress is None:
+        progress = ModuleProgress(
+            user_id=current_user.id,
+            module_id=quiz.module_id,
+            completed=True,
+            completed_at=datetime.now(timezone.utc),
+        )
+        db.add(progress)
+    else:
+        progress.completed = True
+        progress.completed_at = datetime.now(timezone.utc)
 
     attempt = QuizAttempt(
         user_id=current_user.id,
