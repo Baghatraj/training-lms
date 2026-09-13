@@ -65,3 +65,7 @@ class Module(Base):
         cascade="all, delete-orphan",
         order_by="TrainingContent.position",
     )
+
+    quiz = relationship(
+        "Quiz", back_populates="module", uselist=False, cascade="all, delete-orphan"
+    )
