@@ -52,9 +52,16 @@ class Module(Base):
     )
 
     __table_args__ = (
-    UniqueConstraint(
-        "course_id",
-        "position",
-        name="uq_module_course_position",
+        UniqueConstraint(
+            "course_id",
+            "position",
+            name="uq_module_course_position",
         ),
+    )
+
+    training_contents = relationship(
+        "TrainingContent",
+        back_populates="module",
+        cascade="all, delete-orphan",
+        order_by="TrainingContent.position",
     )
