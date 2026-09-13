@@ -38,3 +38,9 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    quiz_attempts = relationship(
+        "QuizAttempt",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

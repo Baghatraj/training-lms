@@ -60,3 +60,8 @@ class Question(Base):
             name="uq_question_quiz_position",
         ),
     )
+
+    attempt_answers = relationship(
+        "QuizAttemptAnswer",
+        back_populates="question",
+    )

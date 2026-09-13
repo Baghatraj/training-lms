@@ -4,5 +4,7 @@ from app.models.course_assignment import CourseAssignment
 from app.models.module import Module
 from app.models.question import Question
 from app.models.quiz import Quiz
+from app.models.quiz_attempt import QuizAttempt
+from app.models.quiz_attempt_answer import QuizAttemptAnswer
 from app.models.training_content import TrainingContent
 from app.models.user import User

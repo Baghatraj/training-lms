@@ -47,3 +47,9 @@ class Quiz(Base):
         cascade="all, delete-orphan",
         order_by="Question.position",
     )
+
+    attempts = relationship(
+        "QuizAttempt",
+        back_populates="quiz",
+        cascade="all, delete-orphan",
+    )

@@ -51,3 +51,8 @@ class Answer(Base):
         "Question",
         back_populates="answers",
     )
+
+    attempt_answers = relationship(
+        "QuizAttemptAnswer",
+        back_populates="selected_answer",
+    )
