@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from enum import Enum
 
 from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -6,6 +7,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
     pass
+
+class UserRole(str, Enum):
+    ADMIN = "ADMIN"
+    INSTRUCTOR = "INSTRUCTOR"
+    USER = "USER"
 
 
 class User(Base):
@@ -15,9 +21,10 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))
-    role: Mapped[str] = mapped_column(
+    role: Mapped[UserRole] = mapped_column(
         String(20),
-        default="USER",
+        default=UserRole.USER,
+        nullable=False
     )
     is_active: Mapped[bool] = mapped_column(
         default=True,
