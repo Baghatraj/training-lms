@@ -1,12 +1,10 @@
 from datetime import datetime, timezone
 from enum import Enum
 
+from app.database import Base
 from sqlalchemy import String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-
-class Base(DeclarativeBase):
-    pass
 
 class UserRole(str, Enum):
     ADMIN = "ADMIN"

@@ -1,16 +1,21 @@
 from datetime import datetime, timezone
 
 from app.database import Base
-from sqlalchemy import Boolean, DateTime, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
-class Course(Base):
-    __tablename__ = "courses"
+class Module(Base):
+    __tablename__ = "modules"
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
         index=True,
+    )
+
+    course_id: Mapped[int] = mapped_column(
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     title: Mapped[str] = mapped_column(
@@ -23,9 +28,8 @@ class Course(Base):
         nullable=True,
     )
 
-    is_published: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
+    position: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
     )
 
@@ -42,8 +46,15 @@ class Course(Base):
         nullable=False,
     )
 
-    modules = relationship(
-        "Module",
-        back_populates="course",
-        cascade="all, delete-orphan",
+    course = relationship(
+        "Course",
+        back_populates="modules",
+    )
+
+    __table_args__ = (
+    UniqueConstraint(
+        "course_id",
+        "position",
+        name="uq_module_course_position",
+        ),
     )

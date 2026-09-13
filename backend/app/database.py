@@ -2,7 +2,7 @@ from collections.abc import Generator
 
 from app.config import settings
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 engine = create_engine(settings.database_url)
 
@@ -19,3 +19,7 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+class Base(DeclarativeBase):
+    pass
