@@ -1,12 +1,14 @@
 from app.auth.dependencies import UserRole, require_roles
 from app.database import get_db
+from app.models.course_assignment import CourseAssignment
 from app.models.module import Module
+from app.models.question import Question
 from app.models.quiz import Quiz
 from app.models.user import User
-from app.schemas.quiz import QuizCreate, QuizResponse
+from app.schemas.quiz import LearnerQuizResponse, QuizCreate, QuizResponse
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 router = APIRouter(
     prefix="/modules",
@@ -68,6 +70,53 @@ def get_quiz(
     db: Session = Depends(get_db),
 ):
     quiz = db.scalar(select(Quiz).where(Quiz.module_id == module_id))
+
+    if quiz is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Quiz not found.",
+        )
+
+    return quiz
+
+@router.get(
+    "/{module_id}/quiz/questions",
+    response_model=LearnerQuizResponse,
+)
+def get_learner_quiz(
+    module_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.USER)),
+):
+    module = db.get(Module, module_id)
+
+    if module is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Module not found.",
+        )
+
+    assignment = db.scalar(
+        select(CourseAssignment).where(
+            CourseAssignment.user_id == current_user.id,
+            CourseAssignment.course_id == module.course_id,
+        )
+    )
+
+    if assignment is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not assigned to this course.",
+        )
+
+    quiz = db.scalar(
+        select(Quiz)
+        .where(Quiz.module_id == module_id)
+        .options(
+            selectinload(Quiz.questions)
+            .selectinload(Question.answers)
+        )
+    )
 
     if quiz is None:
         raise HTTPException(

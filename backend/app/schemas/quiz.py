@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from app.schemas.question import LearnerQuestionResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -15,5 +16,15 @@ class QuizResponse(BaseModel):
     passing_score: int
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LearnerQuizResponse(BaseModel):
+    id: int
+    module_id: int
+    title: str
+    passing_score: int
+    questions: list[LearnerQuestionResponse]
 
     model_config = ConfigDict(from_attributes=True)

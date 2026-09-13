@@ -102,13 +102,3 @@ class LearnerQuestionResponse(BaseModel):
     answers: list[LearnerAnswerResponse]
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class LearnerQuizResponse(BaseModel):
-    id: int
-    module_id: int
-    title: str
-    passing_score: int
-    questions: list[LearnerQuestionResponse]
-
-    model_config = ConfigDict(from_attributes=True)
